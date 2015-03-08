@@ -2,6 +2,7 @@
 import codecs
 import json
 import sys
+import os
 from datetime import datetime
 from os.path import dirname
 
@@ -56,7 +57,7 @@ class XMLOutput():
         
     def translate(self, result):
         language = self.lang
-        file = codecs.open(self.app_path + "\\commodities.json", 'r')
+        file = codecs.open(self.app_path + os.sep + "commodities.json", 'r')
         self.comm_list = json.loads(file.read())
         levels = {u"LOW":{u"deu":u"NIEDRIG", u"fra":u"FAIBLE"},
                   u"MED":{u"deu":u"MITTEL", u"fra":u"MOYEN"},
