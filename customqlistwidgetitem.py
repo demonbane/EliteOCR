@@ -12,7 +12,8 @@ from datetime import datetime, timedelta
 from PyQt4.QtGui import QListWidgetItem, QPixmap
 from qimage2ndarray import array2qimage
 from imageprocessing import *
-from ocrmethods import OCRAreasFinder
+#from ocrmethods import OCRAreasFinder
+from engine import OCRAreasFinder
 
 class CustomQListWidgetItem(QListWidgetItem):
     def __init__(self, text, hiddentext, settings):
@@ -22,7 +23,7 @@ class CustomQListWidgetItem(QListWidgetItem):
         
         self.timestamp = self.getTimeStamp()
         self.filetime = self.getFileTime()
-        #self.filetime = ["14", "12", "23", "18", "58", "30"]
+
         self.log_file = None
         self.search_time = None
         self.system = self.getSystemName()
@@ -34,8 +35,8 @@ class CustomQListWidgetItem(QListWidgetItem):
         self.valid_market = False
         self.img_height = 0
         self.market_width = 0
+        self.offset = None
         self.ocr_areas = None
-        self.hud_color = None
         
     def loadColorImage(self):
         return self.addImage(self.hiddentext)
@@ -43,7 +44,7 @@ class CustomQListWidgetItem(QListWidgetItem):
     def loadPreviewImage(self, color_image, parent = None):
         return self.addPreviewImage(color_image, parent)
     
-    def addImage(self,imagepath):
+    def addImage(self, imagepath):
         image = cv2.imread(imagepath)
         h, w, c = image.shape
         self.img_height = h
@@ -64,10 +65,12 @@ class CustomQListWidgetItem(QListWidgetItem):
         self.img_height = h
         self.ocr_areas = OCRAreasFinder(color_image)
         self.market_width = self.ocr_areas.market_width
-        self.hud_color = self.ocr_areas.hud_color
         if not parent is None:
             parent.progress_bar.setValue(14)
         points = self.ocr_areas.market_table
+        self.market_offset = (points[0][0], points[0][1])
+        station = self.ocr_areas.station_name
+        self.station_offset = (station[0][0], station[0][1])
         self.valid_market = self.ocr_areas.valid
         if self.valid_market:
             cut = image[0:points[1][1] + 20,
